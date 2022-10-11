@@ -10,6 +10,7 @@ import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
 import org.bson.conversions.Bson;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -24,7 +25,7 @@ import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 
 public class ChangeStreams {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         ConnectionString connectionString = new ConnectionString(System.getProperty("mongodb.uri"));
         CodecRegistry pojoCodecRegistry = fromProviders(PojoCodecProvider.builder().automatic(true).build());
         CodecRegistry codecRegistry = fromRegistries(MongoClientSettings.getDefaultCodecRegistry(), pojoCodecRegistry);
@@ -32,6 +33,7 @@ public class ChangeStreams {
                                                                 .applyConnectionString(connectionString)
                                                                 .codecRegistry(codecRegistry)
                                                                 .build();
+
 
         try (MongoClient mongoClient = MongoClients.create(clientSettings)) {
             MongoDatabase db = mongoClient.getDatabase("sample_training");

@@ -56,8 +56,8 @@ public class MappingPOJO {
             Grade updatedGrade = grades.findOneAndReplace(filterByGradeId, grade, returnDocAfterReplace);
             System.out.println("Grade replaced:\t" + updatedGrade);
 
-            // delete this grade
-            System.out.println("Grade deleted:\t" + grades.deleteOne(filterByGradeId));
+
+           System.out.println("Grade deleted:\t" + grades.deleteOne(filterByGradeId));
         }
     }
 }

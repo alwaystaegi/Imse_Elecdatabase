@@ -15,7 +15,7 @@ public class Read {
 
     public static void main(String[] args) {
         try (MongoClient mongoClient = MongoClients.create(System.getProperty("mongodb.uri"))) {
-            MongoDatabase sampleTrainingDB = mongoClient.getDatabase("sample_training");
+            MongoDatabase sampleTrainingDB = mongoClient.getDatabase("Elecdata");
             MongoCollection<Document> gradesCollection = sampleTrainingDB.getCollection("grades");
 
             // find one document with new Document
@@ -48,11 +48,11 @@ public class Read {
 
             // find a list of documents with sort, skip, limit and projection
             List<Document> docs = gradesCollection.find(and(eq("student_id", 10001), lte("class_id", 5)))
-                                                  .projection(fields(excludeId(), include("class_id", "student_id")))
-                                                  .sort(descending("class_id"))
-                                                  .skip(2)
-                                                  .limit(2)
-                                                  .into(new ArrayList<>());
+                    .projection(fields(excludeId(), include("class_id", "student_id")))
+                    .sort(descending("class_id"))
+                    .skip(2)
+                    .limit(2)
+                    .into(new ArrayList<>());
 
             System.out.println("Student sorted, skipped, limited and projected: ");
             for (Document student : docs) {
