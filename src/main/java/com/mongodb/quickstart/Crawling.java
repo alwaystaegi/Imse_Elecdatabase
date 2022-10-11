@@ -7,9 +7,39 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimerTask;
 
-public class Crawling {
+
+
+
+public class Crawling extends TimerTask{
+
+
+    public void run() {
+        try {
+            SimpleDateFormat format= new SimpleDateFormat("yyyy-MM-dd-hh-mm");
+            Date date= new Date();
+            String now= format.format(date);
+
+
+
+            String url ="https://home.kepco.co.kr/kepco/getPowerGraphPop.do";
+            Document doc = Jsoup.connect(url).get();
+            String supplydemand= doc.select("#supply_demand > .graph_value").text().toString().replace(",","");
+            String nowValue=doc.select("#nowValue > .graph_value").text().toString().replace(",","");
+            String reservePercent=doc.select("#reservePercent > .graph_value").text().toString().replace(",","");
+
+
+            System.out.println(now+supplydemand+nowValue+reservePercent);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
     public static void Crawling() throws IOException {
+
 
         String url ="https://home.kepco.co.kr/kepco/getPowerGraphPop.do";
     Document doc = Jsoup.connect(url).get();

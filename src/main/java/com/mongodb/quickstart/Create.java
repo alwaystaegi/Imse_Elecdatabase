@@ -104,8 +104,6 @@ public class Create{
                     for(int j=0;j<data.size();j++){
                         elec.add(Document.parse(data.get(j).toString()));
                     }
-                    System.out.println("됐냐");
-
 
                 }
 //                System.out.println(data.get(0));
