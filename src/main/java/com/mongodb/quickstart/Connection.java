@@ -25,8 +25,12 @@ public class Connection {
             else {
                 MongoCollection<Document> elecCollection = database.getCollection("updateAt");
             }
+
+        mongoClient.close();
         }
         Interval.Interval();
+
+
     }
 }
 

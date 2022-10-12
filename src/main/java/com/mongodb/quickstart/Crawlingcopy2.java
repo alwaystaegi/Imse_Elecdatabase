@@ -47,14 +47,17 @@ try {
 
 
     MongoClient mongoClient = MongoClients.create(System.getenv("mongodb.uri"));
-
         MongoDatabase database = mongoClient.getDatabase("ElecData");
         if(database.getCollection(year+"-"+month+"-"+day)==null){
             database.createCollection(year+"-"+month+"-"+day);
         };
+
         MongoCollection<org.bson.Document> elecCollection = database.getCollection(year+"-"+month+"-"+day);
 System.out.println(nowStr);
-        elecCollection.insertOne(org.bson.Document.parse(nowStr));
+       elecCollection.insertOne(org.bson.Document.parse(nowStr));
+
+        //todo 이슈처리 mongoClient와 연결종료가 안되는디... 왜?
+        mongoClient.close();
     } catch (IOException ex) {
     throw new RuntimeException(ex);
 }

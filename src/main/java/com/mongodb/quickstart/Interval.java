@@ -53,7 +53,7 @@ public class Interval {
             // CronTrigger
             CronTrigger cronTrigger = (CronTrigger) TriggerBuilder.newTrigger()
                     .withIdentity("trggerName", "cron_trigger_group")
-                    .withSchedule(CronScheduleBuilder.cronSchedule("0 0/15 * * * ?")) // 매 15분마다 실행
+                    .withSchedule(CronScheduleBuilder.cronSchedule("30 0/15 * * * ?")) // 매 15분마다 실행
                     //                    .withSchedule(CronScheduleBuilder.cronSchedule("0 0/2 8-17 * * ?")) // 매일 오전 8시에서 오후 5시 사이에 격분마다 실행
                     .forJob(jobDetail)
                     .build();
@@ -68,7 +68,6 @@ public class Interval {
 
             Set<Trigger> triggerSet = new HashSet<Trigger>();
             triggerSet.add(cronTrigger);
-
             scheduler.scheduleJob(jobDetail, triggerSet, false);
             scheduler.start();
 
