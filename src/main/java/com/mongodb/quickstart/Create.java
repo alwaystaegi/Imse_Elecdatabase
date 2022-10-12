@@ -5,11 +5,13 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.InsertManyOptions;
+import com.mongodb.client.model.InsertOneOptions;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -35,9 +37,10 @@ public class Create{
 
             MongoDatabase database = mongoClient.getDatabase("ElecData");
             MongoCollection<Document> elecCollection = database.getCollection("ElecData");
+            MongoCollection<Document>  listCollection = database.getCollection("ListData");
 
 //            insertOneDocument(gradesCollection);
-            insertManyDocuments(elecCollection);
+            insertManyDocuments(elecCollection,listCollection);
         }
     }
 
@@ -46,14 +49,19 @@ public class Create{
 //        System.out.println("One grade inserted for studentId 10000.");
     }
 
-    private static void insertManyDocuments(MongoCollection<Document> elecCollection) throws IOException {
-        List<Document> elec = new ArrayList<>();
+    private static void insertManyDocuments(MongoCollection<Document> elecCollection,MongoCollection<Document> listCollection) throws IOException {
+        List<Document> elec= new ArrayList<>();
         Date date= new Date();
         String yy= new SimpleDateFormat("yyyy").format(date);
         String mm= new SimpleDateFormat("MM").format(date);
         int year=Integer.parseInt(yy)-5;
         boolean flag=true;
         int i=1;
+        int[] sidocount ={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+       ArrayList<String> cntrKndNmList= new ArrayList<>();
+        ArrayList<String> sidoNmList= new ArrayList<>();
+        ArrayList<String> sigunguNmList= new ArrayList<>();
+
         while(flag){
 //todo url에 넣기 cond%5BuseYy%3A%3ALIKE%5D=year
 
@@ -78,21 +86,47 @@ public class Create{
             rd.close();
             conn.disconnect();
 
+            if(i==1&&year==Integer.parseInt(yy)-5){
+
+            }
 
             try {
                 JSONParser parser = new JSONParser();
                 JSONObject obj = (JSONObject) parser.parse(sb.toString());
 
-                JSONArray data=(JSONArray) parser.parse(obj.get("data").toString());
+                JSONArray datas=(JSONArray) parser.parse(obj.get("data").toString());
+
+
+                for (Object datum : datas) {
+                    JSONObject jsondatum=(JSONObject)datum;
+                    if(i!=1)break;
+                    if(sigunguNmList.size()>1&&sigunguNmList.get(0).equals(jsondatum.get("sigunguNm").toString())){
+                        break;
+                    }
+
+
+                    if(sidoNmList.size()==0||sidoNmList.get(sidoNmList.size()-1).equals(jsondatum.get("sidoNm").toString())!=true){
+                        sidoNmList.add(jsondatum.get("sidoNm").toString());}
+                    if(sigunguNmList.size()==0||sigunguNmList.get(sigunguNmList.size()-1).equals(jsondatum.get("sigunguNm").toString())!=true){
+
+                        sidocount[sidoNmList.size()-1]++;
+                        sigunguNmList.add(jsondatum.get("sigunguNm").toString());
+
+                    }
+                    if(sigunguNmList.size()==1){
+                        cntrKndNmList.add(jsondatum.get("cntrKndNm").toString());
+                    }
+
+
+                }
 
 
 
-                if(data.size()==0){
+                if(datas.size()==0){
                     if(year==Integer.parseInt(yy)) {
                         flag=false;
 
-
-                    }
+                }
                     else {
                         year++;
                         i=1;
@@ -101,12 +135,11 @@ public class Create{
 
                    }
                 else{
-                    for(int j=0;j<data.size();j++){
-                        elec.add(Document.parse(data.get(j).toString()));
+                    for(int j=0;j<datas.size();j++){
+                        elec.add(Document.parse(datas.get(j).toString()));
                     }
 
                 }
-//                System.out.println(data.get(0));
             }
             catch(Exception e){
                 if(year==Integer.parseInt(yy)) {
@@ -122,25 +155,38 @@ public class Create{
 
 
         }
-        elecCollection.insertMany(elec,new InsertManyOptions().ordered(false));
-//        for (double classId = 1d; classId <= 10d; classId++) {
-//            grades.add(generateNewGrade(10001d, classId));
-//        }
-//
-//        gradesCollection.insertMany(grades, new InsertManyOptions().ordered(false));
-//        System.out.println("Ten grades inserted for studentId 10001.");
+        StringBuilder jsonstr= new StringBuilder("{");
+        jsonstr.append("'sidoNm':{");
 
+        int sigungucount=0;
+        for(int j=0;j<sidoNmList.size();j++){
+
+            jsonstr.append("'"+sidoNmList.get(j)+"':"+"{");
+            for(int k=0;k<sidocount[j];k++){
+                jsonstr.append("'"+sigunguNmList.get(sigungucount+k)+"':"+k+",");
+
+            }
+            sigungucount+=sidocount[j];
+            jsonstr.append("},");
+        }
+
+        jsonstr.append("},cntrKndNmList:{");
+        for(int j=0;j<cntrKndNmList.size();j++){
+            jsonstr.append("'"+cntrKndNmList.get(j)+"':"+ j+ ",");
+        }
+
+
+        jsonstr.append("},}");
+        System.out.println(jsonstr.toString());
+        System.out.println(Document.parse(jsonstr.toString()));
+
+        listCollection.insertOne(Document.parse(jsonstr.toString()));
+
+
+
+        elecCollection.insertMany(elec,new InsertManyOptions().ordered(false));
 
 
     }
 
-//    private static Document generateNewGrade(double studentId, double classId) {
-//        List<Document> scores = asList(new Document("type", "exam").append("score", rand.nextDouble() * 100),
-//                                       new Document("type", "quiz").append("score", rand.nextDouble() * 100),
-//                                       new Document("type", "homework").append("score", rand.nextDouble() * 100),
-//                                       new Document("type", "homework").append("score", rand.nextDouble() * 100));
-//        return new Document("_id", new ObjectId()).append("student_id", studentId)
-//                                                  .append("class_id", classId)
-//                                                  .append("scores", scores);
-//    }
 }
