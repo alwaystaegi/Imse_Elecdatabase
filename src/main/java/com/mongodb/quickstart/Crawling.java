@@ -43,15 +43,15 @@ try {
     String nowValue=doc.select("#nowValue > .graph_value").text().toString().replace(",","");
     String reservePercent=doc.select("#reservePercent > .graph_value").text().toString().replace(",","");
 
-    String nowStr="{"+"supplydemand:"+supplydemand+",nowValue:"+nowValue+",reservePercent:"+reservePercent+",date:\""+year+"."+month+"."+day+"\",time:\""+hour+"."+minute+"\",}";
+    String nowStr="{"+"supplydemand:"+supplydemand+",nowValue:"+nowValue+",reservePercent:"+reservePercent+",date:\""+year+"/"+month+"/"+day+"\",time:\""+hour+":"+minute+"\",}";
 
-    System.out.println(nowStr);
+
     System.out.println(org.bson.Document.parse(nowStr));
 
     MongoClient mongoClient = MongoClients.create(System.getenv("mongodb.uri"));
         MongoDatabase database = mongoClient.getDatabase("ElecData");
-      MongoCollection<org.bson.Document>  DayCollection = database.getCollection("DayStatis");
-      // DayCollection.insertOne(org.bson.Document.parse(nowStr));
+    MongoCollection<org.bson.Document>  DayCollection = database.getCollection("DayStatis");
+    DayCollection.insertOne(org.bson.Document.parse(nowStr));
 
         //todo 이슈처리 mongoClient와 연결종료가 안되는디... 왜?
         mongoClient.close();
