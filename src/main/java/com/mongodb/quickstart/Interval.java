@@ -9,7 +9,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Interval {
+public class Interval{
 
     public static void Interval(){
         SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd-hh-mm-ss");
@@ -37,8 +37,12 @@ public class Interval {
              *     - 작업 인스턴스가 실행될 때 사용하고자 하는 데이터 개체를 원하는 만큼 보유
              *     - Java Map interface를 구현한 것으로 원시 유형의 데이터를 저장하고 검색하기 위한 몇 가지 편의 방법이 추가
              */
-            JobDetail jobDetail = JobBuilder.newJob(Crawlingcopy2.class)
-                    .withIdentity("myJob", "group1")
+            JobDetail jobCrawling = JobBuilder.newJob(Crawling.class)
+                    .withIdentity("jobCrawling", "group1")
+                    .build();
+
+            JobDetail jobDelAndCreate=JobBuilder.newJob(Delete.class)
+                    .withIdentity("delAndCreate", "group2")
                     .build();
 
             /**
@@ -51,25 +55,27 @@ public class Interval {
              */
 
             // CronTrigger
-            CronTrigger cronTrigger = (CronTrigger) TriggerBuilder.newTrigger()
-                    .withIdentity("trggerName", "cron_trigger_group")
-                    .withSchedule(CronScheduleBuilder.cronSchedule("30 0/15 * * * ?")) // 매 15분마다 실행
-                    //                    .withSchedule(CronScheduleBuilder.cronSchedule("0 0/2 8-17 * * ?")) // 매일 오전 8시에서 오후 5시 사이에 격분마다 실행
-                    .forJob(jobDetail)
-                    .build();
-
             CronTrigger cronTrigger1 = (CronTrigger) TriggerBuilder.newTrigger()
                     .withIdentity("trggerName1", "cron_trigger_group")
+                    .withSchedule(CronScheduleBuilder.cronSchedule("30 0/15 * * * ?")) // 매 15분30초마다 실행
+                    //                    .withSchedule(CronScheduleBuilder.cronSchedule("0 0/2 8-17 * * ?")) // 매일 오전 8시에서 오후 5시 사이에 격분마다 실행
+                    .build();
+
+            CronTrigger cronTrigger2 =  TriggerBuilder.newTrigger()
+                    .withIdentity("trggerName2", "cron_trigger_group")
                     .withSchedule(CronScheduleBuilder.cronSchedule("0 0 0 * * ?"))// 매일 자정 마다 실행;
-                    .forJob(jobDetail)
                     .build();
 
 
+//            Set<Trigger> triggerSet = new HashSet<Trigger>();
+//            triggerSet.add(cronTrigger1);
+//            triggerSet.add(cronTrigger2);
 
-            Set<Trigger> triggerSet = new HashSet<Trigger>();
-            triggerSet.add(cronTrigger);
-            scheduler.scheduleJob(jobDetail, triggerSet, false);
+
             scheduler.start();
+            scheduler.scheduleJob(jobCrawling,cronTrigger1);
+            scheduler.scheduleJob(jobDelAndCreate,cronTrigger2);
+
 
         } catch(Exception e) {
             e.printStackTrace();

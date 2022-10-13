@@ -1,62 +1,62 @@
 package com.mongodb.quickstart;
 
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-
-import java.io.BufferedReader;
+import org.quartz.Job;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.TimerTask;
 
 
 
 
-public class Crawling extends TimerTask{
+public class Crawling implements Job {
+    private static final SimpleDateFormat TIMESTAMP_FMT = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSSS");
 
+    SimpleDateFormat format= new SimpleDateFormat("yyyy-MM-dd-hh-mm");
 
-    public void run() {
-        try {
-            SimpleDateFormat format= new SimpleDateFormat("yyyy-MM-dd-hh-mm");
-            Date date= new Date();
-            String now= format.format(date);
+    @Override
+    public void execute(JobExecutionContext ctx) throws JobExecutionException {
 
-
-
-            String url ="https://home.kepco.co.kr/kepco/getPowerGraphPop.do";
-            Document doc = Jsoup.connect(url).get();
-            String supplydemand= doc.select("#supply_demand > .graph_value").text().toString().replace(",","");
-            String nowValue=doc.select("#nowValue > .graph_value").text().toString().replace(",","");
-            String reservePercent=doc.select("#reservePercent > .graph_value").text().toString().replace(",","");
-
-
-            System.out.println(now+supplydemand+nowValue+reservePercent);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-    public static void Crawling() throws IOException {
-
-
-        String url ="https://home.kepco.co.kr/kepco/getPowerGraphPop.do";
+        /**
+         * JobData에 접근
+         */
+        Date date= new Date();
+        String now= format.format(date);
+        String year=new SimpleDateFormat("yyyy").format(date);
+        String month=new SimpleDateFormat("MM").format(date);
+        String day= new SimpleDateFormat("dd").format(date);
+        String hour= new SimpleDateFormat("HH").format(date);
+        String minute= new SimpleDateFormat("mm").format(date);
+        System.out.println("돌아가는중");
+try {
+    String url = "https://home.kepco.co.kr/kepco/getPowerGraphPop.do";
     Document doc = Jsoup.connect(url).get();
-    //!한전
-        System.out.println("공급능력"+doc.select("#supply_demand > .graph_value").text());//공급능력
-        System.out.println("현재 부하량"+doc.select("#nowValue > .graph_value").text());//현재부하
-        System.out.println("예비율"+doc.select("#reservePercent > .graph_value").text());// 예비율
-        URL url1= new URL("https://epsis.kpx.or.kr/epsisnew/selectMain.do?locale=");
-        BufferedReader br = new BufferedReader(new InputStreamReader(url1.openStream()));
-        StringBuffer sourceCode = new StringBuffer();
-        String sourceLine = "";
-        while((sourceLine=br.readLine())!=null){
-            sourceCode.append(sourceLine+"\n");
-        }
-        System.out.println(sourceCode);
+    String supplydemand= doc.select("#supply_demand > .graph_value").text().toString().replace(",","");
+    String nowValue=doc.select("#nowValue > .graph_value").text().toString().replace(",","");
+    String reservePercent=doc.select("#reservePercent > .graph_value").text().toString().replace(",","");
 
+    String nowStr="{"+"supplydemand:"+supplydemand+",nowValue:"+nowValue+",reservePercent:"+reservePercent+",date:"+year+"/"+month+"/"+day+",time:"+hour+":"+minute+"}";
+
+
+
+    MongoClient mongoClient = MongoClients.create(System.getenv("mongodb.uri"));
+        MongoDatabase database = mongoClient.getDatabase("ElecData");
+      MongoCollection<org.bson.Document>  DayCollection = database.getCollection("DayStatis");
+       DayCollection.insertOne(org.bson.Document.parse(nowStr));
+
+        //todo 이슈처리 mongoClient와 연결종료가 안되는디... 왜?
+        mongoClient.close();
+    } catch (IOException ex) {
+    throw new RuntimeException(ex);
+}
+    }
     }
 
-
-}

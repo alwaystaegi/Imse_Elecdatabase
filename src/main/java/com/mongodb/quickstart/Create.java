@@ -65,7 +65,7 @@ public class Create{
         while(flag){
 //todo url에 넣기 cond%5BuseYy%3A%3ALIKE%5D=year
 
-            StringBuilder urlBuilder= new StringBuilder("https://api.odcloud.kr/api/elecPowerContractUseService/v1/getUseQtyRegionalList?page="+i+"&perPage=10000&cond%5BuseYy%3A%3ALIKE%5D="+year+"&serviceKey=lAPHBd6NvtCWtopc61ow6f4RcbrM6tlHKc4s5Q3qJqPE6M3RdTnDdxhl3ayxRSYy3%2FEcoEZ13qVIrMzNjOyZxQ%3D%3D");
+            StringBuilder urlBuilder= new StringBuilder("https://api.odcloud.kr/api/elecPowerContractUseService/v1/getUseQtyRegionalList?page="+i+"&perPage=10000&cond%5BuseYy%3A%3ALIKE%5D="+year+"&serviceKey="+System.getenv("serviceKey"));
             URL url = new URL(urlBuilder.toString());
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
@@ -185,8 +185,6 @@ public class Create{
 
 
         elecCollection.insertMany(elec,new InsertManyOptions().ordered(false));
-
-
     }
 
 }
