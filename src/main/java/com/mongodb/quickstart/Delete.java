@@ -8,7 +8,6 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 import java.io.IOException;
-import java.text.Normalizer;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -30,9 +29,7 @@ public class Delete implements Job {
 
 
             try (MongoClient mongoClient = MongoClients.create(System.getenv("mongodb.uri"))) {
-                System.out.println("오류포인트2");
                 MongoDatabase sampleTrainingDB = mongoClient.getDatabase("Elecdata");
-                System.out.println("오류포인트3");
                 MongoCollection<Document> DayCollection = sampleTrainingDB.getCollection("DayStatic");
                 MongoCollection<Document> ElecCollection = sampleTrainingDB.getCollection("ElecData");
                 MongoCollection<Document> ListCollection = sampleTrainingDB.getCollection("ListData");

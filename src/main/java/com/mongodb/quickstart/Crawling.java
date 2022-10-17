@@ -18,9 +18,7 @@ import java.util.Date;
 
 
 public class Crawling implements Job {
-    private static final SimpleDateFormat TIMESTAMP_FMT = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSSS");
 
-    SimpleDateFormat format= new SimpleDateFormat("yyyy-MM-dd-hh-mm");
 
     @Override
     public void execute(JobExecutionContext ctx) throws JobExecutionException {
@@ -29,7 +27,6 @@ public class Crawling implements Job {
          * JobData에 접근
          */
         Date date= new Date();
-        String now= format.format(date);
         String year=new SimpleDateFormat("yyyy").format(date);
         String month=new SimpleDateFormat("MM").format(date);
         String day= new SimpleDateFormat("dd").format(date);
@@ -39,9 +36,9 @@ public class Crawling implements Job {
 try {
     String url = "https://home.kepco.co.kr/kepco/getPowerGraphPop.do";
     Document doc = Jsoup.connect(url).get();
-    String supplydemand= doc.select("#supply_demand > .graph_value").text().toString().replace(",","");
-    String nowValue=doc.select("#nowValue > .graph_value").text().toString().replace(",","");
-    String reservePercent=doc.select("#reservePercent > .graph_value").text().toString().replace(",","");
+    String supplydemand= doc.select("#supply_demand > .graph_value").text().replace(",","");
+    String nowValue=doc.select("#nowValue > .graph_value").text().replace(",","");
+    String reservePercent=doc.select("#reservePercent > .graph_value").text().replace(",","");
 
     String nowStr="{"+"supplydemand:"+supplydemand+",nowValue:"+nowValue+",reservePercent:"+reservePercent+",date:\""+year+"/"+month+"/"+day+"\",time:\""+hour+":"+minute+"\",}";
 

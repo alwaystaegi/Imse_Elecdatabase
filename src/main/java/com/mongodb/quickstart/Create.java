@@ -1,71 +1,44 @@
 package com.mongodb.quickstart;
 
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.*;
 import com.mongodb.client.model.InsertManyOptions;
-import com.mongodb.client.model.InsertOneOptions;
 import org.bson.Document;
-import org.bson.types.ObjectId;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Random;
 
-import static java.util.Arrays.asList;
-
-public class Create{
+public class Create {
 
 
-    public static void Create() throws IOException{
+    public static void Create() throws IOException {
 
         try (MongoClient mongoClient = MongoClients.create(System.getenv("mongodb.uri"))) {
-
             MongoDatabase database = mongoClient.getDatabase("ElecData");
             MongoCollection<Document> elecCollection = database.getCollection("ElecData");
-            MongoCollection<Document>  listCollection = database.getCollection("ListData");
 
-//            insertOneDocument(gradesCollection);
-            insertManyDocuments(elecCollection,listCollection);
+            insertManyDocuments(elecCollection);
         }
     }
 
-    private static void insertOneDocument(MongoCollection<Document> gradesCollection) {
-//        gradesCollection.insertOne(generateNewGrade(10000d, 1d));
-//        System.out.println("One grade inserted for studentId 10000.");
-    }
+    private static void insertManyDocuments(MongoCollection<Document> elecCollection) throws IOException {
+        List<Document> elec = new ArrayList<>();
+        Date date = new Date();
+        String yy = new SimpleDateFormat("yyyy").format(date);
+        String mm = new SimpleDateFormat("MM").format(date);
 
-    private static void insertManyDocuments(MongoCollection<Document> elecCollection,MongoCollection<Document> listCollection) throws IOException {
-        List<Document> elec= new ArrayList<>();
-        Date date= new Date();
-        String yy= new SimpleDateFormat("yyyy").format(date);
-        String mm= new SimpleDateFormat("MM").format(date);
-        int year=Integer.parseInt(yy)-5;
-        boolean flag=true;
-        int i=1;
-        int[] sidocount ={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-       ArrayList<String> cntrKndNmList= new ArrayList<>();
-        ArrayList<String> sidoNmList= new ArrayList<>();
-        ArrayList<String> sigunguNmList= new ArrayList<>();
-
-        while(flag){
+        int year = Integer.parseInt(yy) - 3;
+        boolean flag = true;
+        int i = 1;
+        while (flag) {
 //todo url에 넣기 cond%5BuseYy%3A%3ALIKE%5D=year
 
-            StringBuilder urlBuilder= new StringBuilder("https://api.odcloud.kr/api/elecPowerContractUseService/v1/getUseQtyRegionalList?page="+i+"&perPage=10000&cond%5BuseYy%3A%3ALIKE%5D="+year+"&serviceKey="+System.getenv("serviceKey"));
+            StringBuilder urlBuilder = new StringBuilder("https://api.odcloud.kr/api/elecPowerContractUseService/v1/getUseQtyRegionalList?page=" + i + "&perPage=10000&cond%5BuseYy%3A%3ALIKE%5D=" + year + "&serviceKey=" + System.getenv("serviceKey"));
             URL url = new URL(urlBuilder.toString());
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
@@ -86,105 +59,7 @@ public class Create{
             rd.close();
             conn.disconnect();
 
-            if(i==1&&year==Integer.parseInt(yy)-5){
-
-            }
-
-            try {
-                JSONParser parser = new JSONParser();
-                JSONObject obj = (JSONObject) parser.parse(sb.toString());
-
-                JSONArray datas=(JSONArray) parser.parse(obj.get("data").toString());
-
-
-                for (Object datum : datas) {
-                    JSONObject jsondatum=(JSONObject)datum;
-                    if(i!=1)break;
-                    if(sigunguNmList.size()>1&&sigunguNmList.get(0).equals(jsondatum.get("sigunguNm").toString())){
-                        break;
-                    }
-
-
-                    if(sidoNmList.size()==0||sidoNmList.get(sidoNmList.size()-1).equals(jsondatum.get("sidoNm").toString())!=true){
-                        sidoNmList.add(jsondatum.get("sidoNm").toString());}
-                    if(sigunguNmList.size()==0||sigunguNmList.get(sigunguNmList.size()-1).equals(jsondatum.get("sigunguNm").toString())!=true){
-
-                        sidocount[sidoNmList.size()-1]++;
-                        sigunguNmList.add(jsondatum.get("sigunguNm").toString());
-
-                    }
-                    if(sigunguNmList.size()==1){
-                        cntrKndNmList.add(jsondatum.get("cntrKndNm").toString());
-                    }
-
-
-                }
-
-
-
-                if(datas.size()==0){
-                    if(year==Integer.parseInt(yy)) {
-                        flag=false;
-
-                }
-                    else {
-                        year++;
-                        i=1;
-                        continue;
-                    }
-
-                   }
-                else{
-                    for(int j=0;j<datas.size();j++){
-                        elec.add(Document.parse(datas.get(j).toString()));
-                    }
-
-                }
-            }
-            catch(Exception e){
-                if(year==Integer.parseInt(yy)) {
-                    flag=false;
-
-                }
-                else {
-                    year++;}
-
-            };
-    i++;
-
-
-
+            elecCollection.insertMany(elec, new InsertManyOptions().ordered(false));
         }
-        StringBuilder jsonstr= new StringBuilder("{");
-        jsonstr.append("'sidoNm':{");
-
-        int sigungucount=0;
-        for(int j=0;j<sidoNmList.size();j++){
-
-            jsonstr.append("'"+sidoNmList.get(j)+"':"+"{");
-            for(int k=0;k<sidocount[j];k++){
-                jsonstr.append("'"+sigunguNmList.get(sigungucount+k)+"':"+k+",");
-
-            }
-            sigungucount+=sidocount[j];
-            jsonstr.append("},");
-        }
-
-        jsonstr.append("},cntrKndNmList:{");
-        for(int j=0;j<cntrKndNmList.size();j++){
-            jsonstr.append("'"+cntrKndNmList.get(j)+"':"+ j+ ",");
-        }
-
-
-        jsonstr.append("},}");
-        System.out.println(jsonstr.toString());
-        System.out.println(Document.parse(jsonstr.toString()));
-
-        listCollection.insertOne(Document.parse(jsonstr.toString()));
-
-
-
-        elecCollection.insertMany(elec,new InsertManyOptions().ordered(false));
     }
-
 }

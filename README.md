@@ -1,91 +1,20 @@
-# Java Quick Start Project
+# Program info
 
-This repository contains code samples for the Quick Start blog post series.
+- production period : 2022/10/03~2022/10/16
+- purpose: 'ElectricShock(?)'의 데이터베이스 관리를 위한 자바 프로그램
+- library used: [json-simple-1.1.1](https://code.google.com/archive/p/json-simple/downloads),[jsoup-1.15.3](https://jsoup.org/news/release-1.15.3) , [quartz-2.3.0_SNAPSHOT](http://www.quartz-scheduler.org/downloads/)
+- Requirements
+  > Java JDK 8 to 15.
+  > Maven 3.6.3.
+  > MongoDB 6.0.2
 
-You can read more about the Quick Start series on the [MongoDB Developer Hub](https://developer.mongodb.com/learn/).
+<hr/>
 
-- [MongoDB & Java - CRUD Operations Tutorial](https://developer.mongodb.com/quickstart/java-setup-crud-operations)
-- [Java - Mapping POJOs](https://developer.mongodb.com/quickstart/java-mapping-pojos)
-- [Java - Aggregation Pipeline](https://developer.mongodb.com/quickstart/java-aggregation-pipeline)
-- [Java - Change Streams](https://developer.mongodb.com/quickstart/java-change-streams)
-- [Java - Client Side Field Level Encryption](https://developer.mongodb.com/quickstart/java-client-side-field-level-encryption/)
+# 프로그램 기능
 
-# MongoDB Cluster
-
-To get started with MongoDB Atlas and get a free cluster read [this blog post](https://developer.mongodb.com/quickstart/free-atlas-cluster).
-
-# Requirements
-
-- Java JDK 8 to 15.
-- Maven 3.6.3.
-
-# Command lines
-
-- Compile: 
-
-```sh
-mvn clean compile
-```
-
-- Run the `HelloMongoDB` class: 
-
-```sh
-mvn compile exec:java -Dexec.mainClass="com.mongodb.quickstart.HelloMongoDB" -Dexec.cleanupDaemonThreads=false
-```
-- Run the `Connection` class: 
-
-```sh
-mvn compile exec:java -Dexec.mainClass="com.mongodb.quickstart.Connection" -Dmongodb.uri="mongodb+srv://USERNAME:PASSWORD@cluster0-abcde.mongodb.net/test?w=majority" -Dexec.cleanupDaemonThreads=false
-```
-
-- Run the `Create` class:
-
-```sh
-mvn compile exec:java -Dexec.mainClass="com.mongodb.quickstart.Create" -Dmongodb.uri="mongodb+srv://USERNAME:PASSWORD@cluster0-abcde.mongodb.net/test?w=majority" -Dexec.cleanupDaemonThreads=false
-```
-
-- Run the `Read` class:
-
-```sh
-mvn compile exec:java -Dexec.mainClass="com.mongodb.quickstart.Read" -Dmongodb.uri="mongodb+srv://USERNAME:PASSWORD@cluster0-abcde.mongodb.net/test?w=majority" -Dexec.cleanupDaemonThreads=false
-```
-
-- Run the `Update` class:
-
-```sh
-mvn compile exec:java -Dexec.mainClass="com.mongodb.quickstart.Update" -Dmongodb.uri="mongodb+srv://USERNAME:PASSWORD@cluster0-abcde.mongodb.net/test?w=majority" -Dexec.cleanupDaemonThreads=false
-```
-
-- Run the `Delete` class:
-
-```sh
-mvn compile exec:java -Dexec.mainClass="com.mongodb.quickstart.Delete" -Dmongodb.uri="mongodb+srv://USERNAME:PASSWORD@cluster0-abcde.mongodb.net/test?w=majority" -Dexec.cleanupDaemonThreads=false
-```
-
-- Run the `MappingPOJO` class:
-
-```sh
-mvn compile exec:java -Dexec.mainClass="com.mongodb.quickstart.MappingPOJO" -Dmongodb.uri="mongodb+srv://USERNAME:PASSWORD@cluster0-abcde.mongodb.net/test?w=majority" -Dexec.cleanupDaemonThreads=false
-```
-
-- Run the `AggregationFramework` class:
-
-```sh
-mvn compile exec:java -Dexec.mainClass="com.mongodb.quickstart.AggregationFramework" -Dmongodb.uri="mongodb+srv://USERNAME:PASSWORD@cluster0-abcde.mongodb.net/test?w=majority" -Dexec.cleanupDaemonThreads=false
-```
-
-- Run the `ChangeStreams` class:
-
-```sh
-mvn compile exec:java -Dexec.mainClass="com.mongodb.quickstart.ChangeStreams" -Dmongodb.uri="mongodb+srv://USERNAME:PASSWORD@cluster0-abcde.mongodb.net/test?w=majority" -Dexec.cleanupDaemonThreads=false
-```
-
-- Run the `ClientSideFieldLevelEncryption` class:
-```sh
-mvn compile exec:java -Dexec.mainClass="com.mongodb.quickstart.csfle.ClientSideFieldLevelEncryption" -Dmongodb.uri="mongodb+srv://USERNAME:PASSWORD@cluster0-abcde.mongodb.net/test?w=majority" -Dexec.cleanupDaemonThreads=false
-```
-
+1: 15/30/45/00분마다 전력데이터를 수집한다.
+2: 매일 자정마다 api를 읽어 데이터를 업데이트한다.
 
 # Author
 
-Maxime Beugnet <maxime@mongodb.com>
+Hyotaek <ffff4565@sunmoon.ac.kr>

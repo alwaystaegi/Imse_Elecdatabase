@@ -6,8 +6,6 @@ import org.quartz.impl.StdSchedulerFactory;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 
 public class Interval{
 
